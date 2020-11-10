@@ -3,7 +3,7 @@ extends Spatial
 class_name Character
 
 enum TEAMS { ALLIES, ENEMIES, NEUTRAL }
-enum STATE { CONTROL, MOVE, ATTACK }
+enum STATE { CONTROL, MOVE, ATTACK, WAIT }
 
 export (int) var movement = 2
 export (int) var speed = 5
@@ -14,12 +14,17 @@ var character_class = "Warrior"
 var boss = false
 onready var stats = $Stats
 
+var front setget change_direction
+var right setget mirror
+
 var active := false
 var current_tile = null
 export (int) var team
 onready var tileRay = $CurrentTile
 onready var tween = $Tween
 onready var endSign = $END
+onready var sprite := $CharSprite
+
 var poss_moves = []
 var possible_attacks = []
 var turn_spent setget set_turn_spent
@@ -36,7 +41,15 @@ signal movement_completed
 signal move_completed
 signal unit_turn_finished
 signal die
+signal direction_set
 
+func change_direction(new_direction):
+	front = new_direction
+	sprite.frame = front
+	
+func mirror(new_direction):
+	right = new_direction
+	sprite.flip_h = right
 
 func _ready():
 	stats.connect("no_health", self, "die")
@@ -57,7 +70,9 @@ func on_active():
 			show_attack_range(attack_range)
 		STATE.CONTROL:
 			reset_character()
-	emit_signal("active_completed")
+		STATE.WAIT:
+			set_direction()
+	emit_signal("active_completed") 
 
 
 func find_possible_movement(possible_movement: int, jump: int):
@@ -92,6 +107,7 @@ func show_attack_range(attack_range: int):
 
 
 func exit_active():
+	print("exiting")
 	reset_character()
 	self.turn_spent = true
 	emit_signal("inactive_completed")
@@ -109,11 +125,11 @@ func reset_character():
 			tile.available = false
 		for tile in possible_attacks:
 			tile.target = false
-		current_tile = null
-		state = STATE.CONTROL
-		poss_moves = []
-		possible_attacks = []
-		active = false
+	current_tile = null
+	state = STATE.CONTROL
+	poss_moves = []
+	possible_attacks = []
+	active = false
 
 
 func opposing_teams(character: Character):
@@ -121,6 +137,21 @@ func opposing_teams(character: Character):
 		return false
 	return team != character.team
 
+func determine_direction(tile: Vector3):
+	var movement_dir = self.transform.origin - tile
+	print(movement_dir)
+	if movement_dir.x > 0 and movement_dir.y > 0: 
+		mirror(true)
+		change_direction(0)
+	if movement_dir.z < 0 and movement_dir.y > 0:
+		mirror(false)
+		change_direction(0)
+	if movement_dir.y > 0 and (movement_dir.z > 0):
+		change_direction(1)
+		mirror(false)
+	if movement_dir.y > 0 and (movement_dir.x < 0):
+		change_direction(1)
+		mirror(true)
 
 func move_to(path: Array, _delta: float):
 	for tile in path:
@@ -128,11 +159,12 @@ func move_to(path: Array, _delta: float):
 			self,
 			"translation",
 			self.transform.origin,
-			tile + Vector3(0, 2, 0),
+			tile + Vector3(0, 2.3, 0),
 			1,
 			Tween.TRANS_LINEAR,
 			Tween.EASE_IN_OUT
 		)
+		determine_direction(tile)
 		tween.start()
 		yield(tween, "tween_completed")
 	emit_signal("move_completed")
@@ -143,7 +175,7 @@ func _process(_delta):
 		on_active()
 	if not active and not current_tile == null:
 		exit_active()
-
+#	print("active: " + str(active)," ", "current_tile: " + str(current_tile), " ", "state: " + str(state))
 
 func reset_status() -> void:
 	self.turn_spent = false
@@ -166,3 +198,22 @@ func gain_experience(target) -> void:
 	if level < target_level:
 		base_experience = int(base_experience * (target_level - level))
 	self.stats.experience_points = base_experience * boss_factor
+
+func set_direction():
+	if Input.is_action_pressed("ui_up"):
+		mirror(true)
+		change_direction(1)
+		emit_signal("direction_set")
+	elif Input.is_action_pressed("ui_down"):
+		mirror(true)
+		change_direction(0)
+		emit_signal("direction_set")
+	elif Input.is_action_pressed("ui_right"):
+		mirror(false)
+		change_direction(0)
+		emit_signal("direction_set")
+	elif Input.is_action_pressed("ui_left"):
+		mirror(false)
+		change_direction(1)
+		emit_signal("direction_set")
+

@@ -29,16 +29,16 @@ var i: int
 var moving := true
 var current_units: int
 var turns_spent: int setget handle_turns_spent
-var game_turns := 1 setget handle_new_game_turn
+var game_turns setget handle_new_game_turn
 var world_rotation = 0
 
-enum GAME_STATE { MAP_CONTROL, UNIT_CONTROL, UNIT_MOVE, UNIT_ATTACK, UNIT_ANIMATING, PAUSED }
+enum GAME_STATE { MAP_CONTROL, UNIT_CONTROL, UNIT_MOVE, UNIT_ATTACK, UNIT_ANIMATING, UNIT_WAIT, PAUSED }
 var state
 var prev_state
 
 var character_signals = [
 	{"sig": "unit_turn_finished", "fun": "handle_unit_turn_finished"},
-	{"sig": "die", "fun": "handle_unit_death"}
+	{"sig": "die", "fun": "handle_unit_death"}, {"sig": "direction_set", "fun": "character_wait"}
 ]
 
 
@@ -50,12 +50,31 @@ func set_game_state(new_state):
 		unitActions.visible = false
 		selectionArrows.visible = false
 	state = new_state
+	var state_string
+	match state:
+		GAME_STATE.MAP_CONTROL:
+			state_string = "MAP_CONTROL"
+		GAME_STATE.UNIT_CONTROL:
+			state_string = "UNIT_CONTROL"
+		GAME_STATE.UNIT_MOVE:
+			state_string = "UNIT_MOVE"
+		GAME_STATE.UNIT_ATTACK:
+			state_string = "UNIT_ATTACK"
+		GAME_STATE.UNIT_ANIMATING:
+			state_string = "UNIT_ANIMATING"
+		GAME_STATE.UNIT_WAIT:
+			state_string = "UNIT_WAIT"
+		GAME_STATE.PAUSED:
+			state_string = "PAUSED"
+	$Camera/UI/TurnStats/State.text = "State: " + state_string
+
 
 
 func _ready():
 	setup_unit_signals()
 	set_current_team(allies)
 	current_units = current_team.get_child_count()
+	self.game_turns = 0
 	self.turns_spent = 0
 	yield(get_tree().create_timer(0.00000001), "timeout")
 	self.current_tile = allies.get_child(0).get_tile()
@@ -127,6 +146,8 @@ func _process(delta):
 			unit_move_state(delta)
 		GAME_STATE.UNIT_ATTACK:
 			unit_attack_state(delta)
+		GAME_STATE.UNIT_WAIT:
+			unit_wait_state(delta)
 
 
 func map_control_state(_delta: float):
@@ -146,9 +167,7 @@ func unit_control_state(_delta: float) -> void:
 		print(current_selection.name)
 		match current_selection.name:
 			"Wait":
-				current_character.exit_active()
-				current_character = null
-				set_game_state(GAME_STATE.MAP_CONTROL)
+				character_wait()
 			"Attack":
 				character_attack()
 			"Items":
@@ -175,6 +194,12 @@ func character_attack():
 	yield(current_character, "active_completed")
 	set_game_state(GAME_STATE.UNIT_ATTACK)
 
+func character_wait():
+	current_character.active = true
+	current_character.state = 3
+	yield(current_character, "active_completed")
+	set_game_state(GAME_STATE.UNIT_WAIT)
+
 
 func set_current_selection_index(val: int):
 	selectionArrows.get_child(current_selection_index).visible = false
@@ -194,6 +219,13 @@ func unit_move_state(delta):
 			move_character(delta)
 	control_tile()
 
+func unit_wait_state(_delta: float):
+	if current_character:	
+		current_character.set_direction()
+		if Input.is_action_just_pressed("ui_accept"):
+			set_game_state(GAME_STATE.MAP_CONTROL)
+			current_character.active = false
+			current_character = null
 
 func unit_attack_state(_delta):
 	if Input.is_action_just_pressed("ui_accept"):

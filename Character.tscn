@@ -8,13 +8,12 @@
 [sub_resource type="BoxShape" id=1]
 
 [sub_resource type="CylinderMesh" id=2]
-top_radius = 0.6
+top_radius = 0.03
 bottom_radius = 0.8
 height = 0.1
 radial_segments = 16
 
 [node name="Character" type="Spatial"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.3, 0 )
 script = ExtResource( 2 )
 
 [node name="CharSprite" type="Sprite3D" parent="."]
@@ -22,6 +21,7 @@ pixel_size = 0.1
 billboard = 1
 shaded = true
 texture = ExtResource( 1 )
+hframes = 2
 
 [node name="Area" type="StaticBody" parent="."]
 
