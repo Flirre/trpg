@@ -72,6 +72,7 @@ func set_game_state(new_state):
 
 func _ready():
 	setup_unit_signals()
+	setup_camera_signals()
 	set_current_team(allies)
 	current_units = current_team.get_child_count()
 	self.game_turns = 0
@@ -89,6 +90,9 @@ func setup_unit_signals():
 		for enemy in enemies.get_children():
 			enemy.connect(char_signal.sig, self, char_signal.fun)
 
+func setup_camera_signals():
+	camera.connect("rotate_world", self, "_on_Camera_rotate_world")
+	camera.connect("start_rotate_world", self, "_on_Camera_start_rotate_world")
 
 func handle_unit_turn_finished():
 	self.turns_spent += 1
@@ -269,6 +273,7 @@ func move_character(delta: float) -> void:
 
 
 func control_tile():
+	#print(world_rotation)
 	match world_rotation:
 		0:
 			tile_directions(

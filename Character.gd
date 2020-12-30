@@ -24,6 +24,7 @@ onready var tileRay = $CurrentTile
 onready var tween = $Tween
 onready var endSign = $END
 onready var sprite := $CharSprite
+onready var arrows := $DirectionArrows
 
 var poss_moves = []
 var possible_attacks = []
@@ -116,6 +117,7 @@ func exit_active():
 
 func attack(target: Character) -> void:
 	print(self.name, ' attacked ', target.name)
+	determine_direction(target.transform.origin)
 	target.stats.health -= self.stats.strength
 
 
@@ -125,6 +127,8 @@ func reset_character():
 			tile.available = false
 		for tile in possible_attacks:
 			tile.target = false
+	make_opaque()
+	hide_arrows()
 	current_tile = null
 	state = STATE.CONTROL
 	poss_moves = []
@@ -140,18 +144,18 @@ func opposing_teams(character: Character):
 func determine_direction(tile: Vector3):
 	var movement_dir = self.transform.origin - tile
 	print(movement_dir)
-	if movement_dir.x > 0 and movement_dir.y > 0: 
+	if movement_dir.x > 0: 
 		mirror(true)
 		change_direction(0)
-	if movement_dir.z < 0 and movement_dir.y > 0:
-		mirror(false)
-		change_direction(0)
-	if movement_dir.y > 0 and (movement_dir.z > 0):
-		change_direction(1)
-		mirror(false)
-	if movement_dir.y > 0 and (movement_dir.x < 0):
+	if movement_dir.x < 0:
 		change_direction(1)
 		mirror(true)
+	if movement_dir.z < 0:
+		mirror(false)
+		change_direction(0)
+	if movement_dir.z > 0:
+		change_direction(1)
+		mirror(false)
 
 func move_to(path: Array, _delta: float):
 	for tile in path:
@@ -200,6 +204,8 @@ func gain_experience(target) -> void:
 	self.stats.experience_points = base_experience * boss_factor
 
 func set_direction():
+	make_transparent()
+	show_arrows()
 	if Input.is_action_pressed("ui_up"):
 		mirror(true)
 		change_direction(1)
@@ -217,3 +223,21 @@ func set_direction():
 		change_direction(1)
 		emit_signal("direction_set")
 
+
+func make_transparent():
+	sprite.opacity = 0.5
+
+
+func make_opaque():
+	sprite.opacity = 1
+
+
+func show_arrows():
+	arrows.visible = true
+
+
+func hide_arrows():
+	arrows.visible = false
+
+func highlight_arrow(arrow: Sprite3D):
+	arrow.opacity = 1

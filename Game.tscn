@@ -84,16 +84,19 @@ theme = ExtResource( 7 )
 [node name="TeamLabel" type="Label" parent="Camera/UI/TurnStats"]
 margin_right = 992.0
 margin_bottom = 51.0
+text = "Allies"
 
 [node name="UnitsLeft" type="Label" parent="Camera/UI/TurnStats"]
 margin_top = 55.0
 margin_right = 992.0
 margin_bottom = 106.0
+text = "Units Left:"
 
 [node name="CurrentTurn" type="Label" parent="Camera/UI/TurnStats"]
 margin_top = 110.0
 margin_right = 992.0
 margin_bottom = 161.0
+text = "Current Turn:"
 
 [node name="State" type="Label" parent="Camera/UI/TurnStats"]
 margin_top = 165.0
@@ -311,7 +314,10 @@ directional_shadow_mode = 0
 [node name="Character" parent="World/Allies" instance=ExtResource( 2 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 2.3, -4 )
 movement = 5
+speed = 5
 jump = 1
+attack_range = 1
+team = 0
 
 [node name="Stats" parent="World/Allies/Character" index="5"]
 char_name = "Sir Player"
@@ -319,6 +325,10 @@ char_name = "Sir Player"
 [node name="Character2" parent="World/Allies" instance=ExtResource( 2 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 2.3, 0 )
 movement = 3
+speed = 5
+jump = 2
+attack_range = 1
+team = 0
 
 [node name="Stats" parent="World/Allies/Character2" index="5"]
 char_name = "Squire Playable"
@@ -327,6 +337,10 @@ char_name = "Squire Playable"
 
 [node name="Character3" parent="World/Enemies" instance=ExtResource( 2 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 5.3, -8 )
+movement = 2
+speed = 5
+jump = 2
+attack_range = 1
 team = 1
 
 [node name="CharSprite" parent="World/Enemies/Character3" index="0"]
