@@ -233,6 +233,8 @@ func make_opaque():
 
 
 func show_arrows():
+	var rotation = get_tree().root.get_node("Game/World").rotation
+	arrows.rotation = -rotation
 	arrows.visible = true
 
 
