@@ -10,6 +10,7 @@ onready var world_tween = game_world.get_node("Tween")
 var world_rotation = 0
 signal rotate_world
 signal start_rotate_world
+signal middle_rotate_world
 
 const GAME_STATE = preload("res://Game.gd").GAME_STATE
 
@@ -88,13 +89,25 @@ func rotate_world(right: bool):
 
 func rotate_camera_right():
 	camera_state = CAMERA_STATE.ROTATING
-	emit_signal("start_rotate_world")
+	emit_signal("start_rotate_world", -1)
 	world_tween.interpolate_property(
 		game_world,
 		"rotation",
 		game_world.rotation,
-		game_world.rotation + Vector3(0, PI / 2, 0),
-		1,
+		game_world.rotation + Vector3(0, PI / 4, 0),
+		0.5,
+		Tween.TRANS_LINEAR,
+		Tween.EASE_IN_OUT
+	)
+	world_tween.start()
+	yield(world_tween, "tween_completed")
+	emit_signal("middle_rotate_world", -1)
+	world_tween.interpolate_property(
+		game_world,
+		"rotation",
+		game_world.rotation,
+		game_world.rotation + Vector3(0, PI / 4, 0),
+		0.5,
 		Tween.TRANS_LINEAR,
 		Tween.EASE_IN_OUT
 	)
@@ -106,13 +119,24 @@ func rotate_camera_right():
 
 func rotate_camera_left():
 	camera_state = CAMERA_STATE.ROTATING
-	emit_signal("start_rotate_world")
 	world_tween.interpolate_property(
 		game_world,
 		"rotation",
 		game_world.rotation,
-		game_world.rotation - Vector3(0, PI / 2, 0),
-		1,
+		game_world.rotation - Vector3(0, PI / 4, 0),
+		0.5,
+		Tween.TRANS_LINEAR,
+		Tween.EASE_IN_OUT
+	)
+	world_tween.start()
+	yield(world_tween, "tween_completed")
+	emit_signal("middle_rotate_world", 1)
+	world_tween.interpolate_property(
+		game_world,
+		"rotation",
+		game_world.rotation,
+		game_world.rotation - Vector3(0, PI / 4, 0),
+		0.5,
 		Tween.TRANS_LINEAR,
 		Tween.EASE_IN_OUT
 	)

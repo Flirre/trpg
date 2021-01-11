@@ -32,6 +32,9 @@ var turns_spent: int setget handle_turns_spent
 var game_turns setget handle_new_game_turn
 var world_rotation = 0
 
+signal rotate_world_right
+signal rotate_world_left
+
 enum GAME_STATE { MAP_CONTROL, UNIT_CONTROL, UNIT_MOVE, UNIT_ATTACK, UNIT_ANIMATING, UNIT_WAIT, PAUSED }
 var state
 var prev_state
@@ -93,6 +96,7 @@ func setup_unit_signals():
 func setup_camera_signals():
 	camera.connect("rotate_world", self, "_on_Camera_rotate_world")
 	camera.connect("start_rotate_world", self, "_on_Camera_start_rotate_world")
+	camera.connect("middle_rotate_world", self, "_on_Camera_middle_rotate_world")
 
 func handle_unit_turn_finished():
 	self.turns_spent += 1
@@ -414,6 +418,12 @@ func _on_Camera_rotate_world(new_rotation):
 	state = prev_state
 
 
-func _on_Camera_start_rotate_world():
+func _on_Camera_start_rotate_world(direction):
 	prev_state = state
 	state = GAME_STATE.PAUSED
+
+func _on_Camera_middle_rotate_world(direction):
+	if direction < 0:
+		emit_signal("rotate_world_right")
+	if direction > 0:
+		emit_signal("rotate_world_left")

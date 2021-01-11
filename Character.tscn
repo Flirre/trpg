@@ -16,6 +16,11 @@ radial_segments = 16
 
 [node name="Character" type="Spatial"]
 script = ExtResource( 2 )
+movement = null
+speed = null
+jump = null
+attack_range = null
+team = null
 
 [node name="CharSprite" type="Sprite3D" parent="."]
 pixel_size = 0.1
@@ -57,6 +62,7 @@ material/0 = null
 
 [node name="DirectionArrows" type="Spatial" parent="."]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0 )
+visible = false
 
 [node name="Up" type="Sprite3D" parent="DirectionArrows"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0, -0.5 )

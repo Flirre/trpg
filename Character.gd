@@ -25,6 +25,7 @@ onready var tween = $Tween
 onready var endSign = $END
 onready var sprite := $CharSprite
 onready var arrows := $DirectionArrows
+var game
 
 var poss_moves = []
 var possible_attacks = []
@@ -51,8 +52,25 @@ func change_direction(new_direction):
 func mirror(new_direction):
 	right = new_direction
 	sprite.flip_h = right
+	
+func rotate_sprite_right():
+	mirror(!right)
+	var rotation = game.world_rotation
+	if rotation == 0 or rotation == 2:
+		change_direction(!front)
+	print(rotation)
+
+func rotate_sprite_left():
+	mirror(!right)
+	var rotation = game.world_rotation
+	if rotation == 1 or rotation == 3:
+		change_direction(!front)
+	print(rotation)
 
 func _ready():
+	game = get_tree().get_root().get_node("Game")
+	game.connect("rotate_world_right", self, "rotate_sprite_right")
+	game.connect("rotate_world_left", self, "rotate_sprite_left")
 	stats.connect("no_health", self, "die")
 	if active:
 		on_active()
