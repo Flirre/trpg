@@ -45,28 +45,42 @@ signal unit_turn_finished
 signal die
 signal direction_set
 
+func set_sprite_direction(front, right):
+	sprite.frame = front
+	sprite.flip_h = right
+
 func change_direction(new_direction):
 	front = new_direction
 	sprite.frame = front
-	
+
 func mirror(new_direction):
 	right = new_direction
 	sprite.flip_h = right
 	
 func rotate_sprite_right():
-	mirror(!right)
-	var rotation = game.world_rotation
-	if rotation == 0 or rotation == 2:
-		change_direction(!front)
-	print(rotation)
+	var front = sprite.frame
+	var mirror = sprite.flip_h
+	if (front == 0 and not mirror):
+		set_sprite_direction(1, true)
+	if (front == 1 and mirror):
+		set_sprite_direction(1, false)
+	if (front == 1 and not mirror):
+		set_sprite_direction(0, true)
+	if (front == 0 and mirror):
+		set_sprite_direction(0, false)
 
 func rotate_sprite_left():
-	mirror(!right)
-	var rotation = game.world_rotation
-	if rotation == 1 or rotation == 3:
-		change_direction(!front)
-	print(rotation)
-
+	var front = sprite.frame
+	var mirror = sprite.flip_h
+	if (front == 0 and not mirror):
+		set_sprite_direction(0, true)
+	if (front == 1 and mirror):
+		set_sprite_direction(0, false)
+	if (front == 1 and not mirror):
+		set_sprite_direction(1, true)
+	if (front == 0 and mirror):
+		set_sprite_direction(1, false)
+	
 func _ready():
 	game = get_tree().get_root().get_node("Game")
 	game.connect("rotate_world_right", self, "rotate_sprite_right")
