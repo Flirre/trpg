@@ -45,42 +45,48 @@ signal unit_turn_finished
 signal die
 signal direction_set
 
+
 func set_sprite_direction(front, right):
 	sprite.frame = front
 	sprite.flip_h = right
+
 
 func change_direction(new_direction):
 	front = new_direction
 	sprite.frame = front
 
+
 func mirror(new_direction):
 	right = new_direction
 	sprite.flip_h = right
-	
+
+
 func rotate_sprite_right():
 	var front = sprite.frame
 	var mirror = sprite.flip_h
-	if (front == 0 and not mirror):
+	if front == 0 and not mirror:
 		set_sprite_direction(1, true)
-	if (front == 1 and mirror):
+	if front == 1 and mirror:
 		set_sprite_direction(1, false)
-	if (front == 1 and not mirror):
+	if front == 1 and not mirror:
 		set_sprite_direction(0, true)
-	if (front == 0 and mirror):
+	if front == 0 and mirror:
 		set_sprite_direction(0, false)
+
 
 func rotate_sprite_left():
 	var front = sprite.frame
 	var mirror = sprite.flip_h
-	if (front == 0 and not mirror):
+	if front == 0 and not mirror:
 		set_sprite_direction(0, true)
-	if (front == 1 and mirror):
+	if front == 1 and mirror:
 		set_sprite_direction(0, false)
-	if (front == 1 and not mirror):
+	if front == 1 and not mirror:
 		set_sprite_direction(1, true)
-	if (front == 0 and mirror):
+	if front == 0 and mirror:
 		set_sprite_direction(1, false)
-	
+
+
 func _ready():
 	game = get_tree().get_root().get_node("Game")
 	game.connect("rotate_world_right", self, "rotate_sprite_right")
@@ -105,7 +111,7 @@ func on_active():
 			reset_character()
 		STATE.WAIT:
 			set_direction()
-	emit_signal("active_completed") 
+	emit_signal("active_completed")
 
 
 func find_possible_movement(possible_movement: int, jump: int):
@@ -173,12 +179,13 @@ func opposing_teams(character: Character):
 		return false
 	return team != character.team
 
+
 func determine_direction(tile: Vector3):
 	var rotation = game.world_rotation
 	var movement_dir = self.transform.origin - tile
 	match rotation:
 		0:
-			if movement_dir.x > 0: 
+			if movement_dir.x > 0:
 				set_sprite_direction(0, true)
 			if movement_dir.x < 0:
 				set_sprite_direction(1, true)
@@ -187,16 +194,16 @@ func determine_direction(tile: Vector3):
 			if movement_dir.z > 0:
 				set_sprite_direction(1, false)
 		1:
-			if movement_dir.x > 0: 
-				set_sprite_direction(0,false)
+			if movement_dir.x > 0:
+				set_sprite_direction(0, false)
 			if movement_dir.x < 0:
-				set_sprite_direction(1,false)
+				set_sprite_direction(1, false)
 			if movement_dir.z < 0:
 				set_sprite_direction(1, true)
 			if movement_dir.z > 0:
 				set_sprite_direction(0, true)
 		2:
-			if movement_dir.x > 0: 
+			if movement_dir.x > 0:
 				set_sprite_direction(1, true)
 			if movement_dir.x < 0:
 				set_sprite_direction(0, true)
@@ -205,7 +212,7 @@ func determine_direction(tile: Vector3):
 			if movement_dir.z > 0:
 				set_sprite_direction(0, false)
 		3:
-			if movement_dir.x > 0: 
+			if movement_dir.x > 0:
 				set_sprite_direction(1, false)
 			if movement_dir.x < 0:
 				set_sprite_direction(0, false)
@@ -237,7 +244,10 @@ func _process(_delta):
 		on_active()
 	if not active and not current_tile == null:
 		exit_active()
+
+
 #	print("active: " + str(active)," ", "current_tile: " + str(current_tile), " ", "state: " + str(state))
+
 
 func reset_status() -> void:
 	self.turn_spent = false
@@ -261,6 +271,7 @@ func gain_experience(target) -> void:
 		base_experience = int(base_experience * (target_level - level))
 	self.stats.experience_points = base_experience * boss_factor
 
+
 func set_direction():
 	make_transparent()
 	show_arrows()
@@ -281,6 +292,7 @@ func set_direction():
 		change_direction(1)
 		emit_signal("direction_set")
 
+
 func make_transparent():
 	sprite.opacity = 0.5
 
@@ -294,8 +306,10 @@ func show_arrows():
 	arrows.rotation = -rotation
 	arrows.visible = true
 
+
 func hide_arrows():
 	arrows.visible = false
+
 
 func highlight_arrow(arrow: Sprite3D):
 	arrow.opacity = 1
