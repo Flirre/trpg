@@ -14,9 +14,6 @@ var character_class = "Warrior"
 var boss = false
 onready var stats = $Stats
 
-var front setget change_direction
-var right setget mirror
-
 var active := false
 var current_tile = null
 export (int) var team
@@ -48,16 +45,6 @@ signal direction_set
 
 func set_sprite_direction(front, right):
 	sprite.frame = front
-	sprite.flip_h = right
-
-
-func change_direction(new_direction):
-	front = new_direction
-	sprite.frame = front
-
-
-func mirror(new_direction):
-	right = new_direction
 	sprite.flip_h = right
 
 
@@ -276,20 +263,16 @@ func set_direction():
 	make_transparent()
 	show_arrows()
 	if Input.is_action_pressed("ui_up"):
-		mirror(true)
-		change_direction(1)
+		set_sprite_direction(1, true)
 		emit_signal("direction_set")
 	elif Input.is_action_pressed("ui_down"):
-		mirror(true)
-		change_direction(0)
+		set_sprite_direction(0, true)
 		emit_signal("direction_set")
 	elif Input.is_action_pressed("ui_right"):
-		mirror(false)
-		change_direction(0)
+		set_sprite_direction(0, false)
 		emit_signal("direction_set")
 	elif Input.is_action_pressed("ui_left"):
-		mirror(false)
-		change_direction(1)
+		set_sprite_direction(1, false)
 		emit_signal("direction_set")
 
 
