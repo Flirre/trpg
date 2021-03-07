@@ -258,7 +258,7 @@ func gain_experience(target) -> void:
 
 
 func set_direction():
-	make_transparent()
+	make_character_sprite_transparent()
 	show_arrows()
 	if Input.is_action_pressed("ui_up"):
 		set_sprite_direction(1, 1)
@@ -274,7 +274,7 @@ func set_direction():
 		emit_signal("direction_set")
 
 
-func make_transparent():
+func make_character_sprite_transparent():
 	sprite.opacity = 0.5
 
 
