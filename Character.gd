@@ -272,7 +272,7 @@ func set_direction():
 		set_sprite_direction(0, 0)
 		emit_signal("direction_set")
 	elif Input.is_action_pressed("ui_left"):
-		set_sprite_direction(1, 1)
+		set_sprite_direction(1, 0)
 		emit_signal("direction_set")
 
 
