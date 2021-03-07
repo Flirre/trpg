@@ -277,7 +277,6 @@ func move_character(delta: float) -> void:
 
 
 func control_tile():
-	#print(world_rotation)
 	match world_rotation:
 		0:
 			tile_directions(
