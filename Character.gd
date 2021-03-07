@@ -3,7 +3,7 @@ extends Spatial
 class_name Character
 
 enum TEAMS { ALLIES, ENEMIES, NEUTRAL }
-enum STATE { CONTROL, MOVE, ATTACK }
+enum STATE { CONTROL, MOVE, ATTACK, WAIT }
 
 export (int) var movement = 2
 export (int) var speed = 5
@@ -20,10 +20,15 @@ export (int) var team
 onready var tileRay = $CurrentTile
 onready var tween = $Tween
 onready var endSign = $END
+onready var sprite := $CharSprite
+onready var arrows := $DirectionArrows
+var game
+
 var poss_moves = []
 var possible_attacks = []
 var turn_spent setget set_turn_spent
 
+const SPRITE_TRANSLATION_ABOVE_GAME_OBJECT = 2.3
 
 func set_turn_spent(val: bool):
 	endSign.visible = val
@@ -36,9 +41,44 @@ signal movement_completed
 signal move_completed
 signal unit_turn_finished
 signal die
+signal direction_set
+
+
+func set_sprite_direction(front, right):
+	sprite.frame = front
+	sprite.flip_h = bool(right)
+
+
+func rotate_sprite_right():
+	var front = sprite.frame
+	var mirror = sprite.flip_h
+	if front == 0 and not mirror:
+		set_sprite_direction(1, 1)
+	if front == 1 and mirror:
+		set_sprite_direction(1, 0)
+	if front == 1 and not mirror:
+		set_sprite_direction(0, 1)
+	if front == 0 and mirror:
+		set_sprite_direction(0, 0)
+
+
+func rotate_sprite_left():
+	var front = sprite.frame
+	var mirror = sprite.flip_h
+	if front == 0 and not mirror:
+		set_sprite_direction(0, 1)
+	if front == 1 and mirror:
+		set_sprite_direction(0, 0)
+	if front == 1 and not mirror:
+		set_sprite_direction(1, 1)
+	if front == 0 and mirror:
+		set_sprite_direction(1, 0)
 
 
 func _ready():
+	game = get_tree().get_root().get_node("Game")
+	game.connect("rotate_world_right", self, "rotate_sprite_right")
+	game.connect("rotate_world_left", self, "rotate_sprite_left")
 	stats.connect("no_health", self, "die")
 	if active:
 		on_active()
@@ -57,6 +97,8 @@ func on_active():
 			show_attack_range(attack_range)
 		STATE.CONTROL:
 			reset_character()
+		STATE.WAIT:
+			set_direction()
 	emit_signal("active_completed")
 
 
@@ -92,6 +134,7 @@ func show_attack_range(attack_range: int):
 
 
 func exit_active():
+	print("exiting")
 	reset_character()
 	self.turn_spent = true
 	emit_signal("inactive_completed")
@@ -100,6 +143,7 @@ func exit_active():
 
 func attack(target: Character) -> void:
 	print(self.name, ' attacked ', target.name)
+	determine_direction(target.transform.origin)
 	target.stats.health -= self.stats.strength
 
 
@@ -109,11 +153,13 @@ func reset_character():
 			tile.available = false
 		for tile in possible_attacks:
 			tile.target = false
-		current_tile = null
-		state = STATE.CONTROL
-		poss_moves = []
-		possible_attacks = []
-		active = false
+	make_character_sprite_opaque()
+	hide_arrows()
+	current_tile = null
+	state = STATE.CONTROL
+	poss_moves = []
+	possible_attacks = []
+	active = false
 
 
 func opposing_teams(character: Character):
@@ -122,17 +168,60 @@ func opposing_teams(character: Character):
 	return team != character.team
 
 
+func determine_direction(tile: Vector3):
+	var rotation = game.world_rotation
+	var movement_dir = self.transform.origin - tile
+	match rotation:
+		0:
+			if movement_dir.x > 0:
+				set_sprite_direction(0, 1)
+			if movement_dir.x < 0:
+				set_sprite_direction(1, 1)
+			if movement_dir.z < 0:
+				set_sprite_direction(0, 0)
+			if movement_dir.z > 0:
+				set_sprite_direction(1, 0)
+		1:
+			if movement_dir.x > 0:
+				set_sprite_direction(0, 0)
+			if movement_dir.x < 0:
+				set_sprite_direction(1, 0)
+			if movement_dir.z < 0:
+				set_sprite_direction(1, 1)
+			if movement_dir.z > 0:
+				set_sprite_direction(0, 1)
+		2:
+			if movement_dir.x > 0:
+				set_sprite_direction(1, 1)
+			if movement_dir.x < 0:
+				set_sprite_direction(0, 1)
+			if movement_dir.z < 0:
+				set_sprite_direction(1, 0)
+			if movement_dir.z > 0:
+				set_sprite_direction(0, 0)
+		3:
+			if movement_dir.x > 0:
+				set_sprite_direction(1, 0)
+			if movement_dir.x < 0:
+				set_sprite_direction(0, 0)
+			if movement_dir.z < 0:
+				set_sprite_direction(0, 1)
+			if movement_dir.z > 0:
+				set_sprite_direction(1, 1)
+
+
 func move_to(path: Array, _delta: float):
 	for tile in path:
 		tween.interpolate_property(
 			self,
 			"translation",
 			self.transform.origin,
-			tile + Vector3(0, 2, 0),
+			tile + Vector3(0, SPRITE_TRANSLATION_ABOVE_GAME_OBJECT, 0),
 			1,
 			Tween.TRANS_LINEAR,
 			Tween.EASE_IN_OUT
 		)
+		determine_direction(tile)
 		tween.start()
 		yield(tween, "tween_completed")
 	emit_signal("move_completed")
@@ -166,3 +255,42 @@ func gain_experience(target) -> void:
 	if level < target_level:
 		base_experience = int(base_experience * (target_level - level))
 	self.stats.experience_points = base_experience * boss_factor
+
+
+func set_direction():
+	make_character_sprite_transparent()
+	show_arrows()
+	if Input.is_action_pressed("ui_up"):
+		set_sprite_direction(1, 1)
+		emit_signal("direction_set")
+	elif Input.is_action_pressed("ui_down"):
+		set_sprite_direction(0, 1)
+		emit_signal("direction_set")
+	elif Input.is_action_pressed("ui_right"):
+		set_sprite_direction(0, 0)
+		emit_signal("direction_set")
+	elif Input.is_action_pressed("ui_left"):
+		set_sprite_direction(1, 0)
+		emit_signal("direction_set")
+
+
+func make_character_sprite_transparent():
+	sprite.opacity = 0.5
+
+
+func make_character_sprite_opaque():
+	sprite.opacity = 1
+
+
+func show_arrows():
+	var rotation = get_tree().root.get_node("Game/World").rotation
+	arrows.rotation = -rotation
+	arrows.visible = true
+
+
+func hide_arrows():
+	arrows.visible = false
+
+
+func highlight_arrow(arrow: Sprite3D):
+	arrow.opacity = 1

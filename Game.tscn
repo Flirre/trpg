@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=2]
+[gd_scene load_steps=14 format=2]
 
 [ext_resource path="res://map1.tscn" type="PackedScene" id=1]
 [ext_resource path="res://Character.tscn" type="PackedScene" id=2]
@@ -7,6 +7,7 @@
 [ext_resource path="res://Camera.gd" type="Script" id=5]
 [ext_resource path="res://assets/skinny-arrow-no-outline.png" type="Texture" id=6]
 [ext_resource path="res://assets/font_theme.tres" type="Theme" id=7]
+[ext_resource path="res://assets/mr-beard.png" type="Texture" id=8]
 
 [sub_resource type="ProceduralSky" id=1]
 radiance_size = 0
@@ -83,16 +84,25 @@ theme = ExtResource( 7 )
 [node name="TeamLabel" type="Label" parent="Camera/UI/TurnStats"]
 margin_right = 992.0
 margin_bottom = 51.0
+text = "Allies"
 
 [node name="UnitsLeft" type="Label" parent="Camera/UI/TurnStats"]
 margin_top = 55.0
 margin_right = 992.0
 margin_bottom = 106.0
+text = "Units Left:"
 
 [node name="CurrentTurn" type="Label" parent="Camera/UI/TurnStats"]
 margin_top = 110.0
 margin_right = 992.0
 margin_bottom = 161.0
+text = "Current Turn:"
+
+[node name="State" type="Label" parent="Camera/UI/TurnStats"]
+margin_top = 165.0
+margin_right = 992.0
+margin_bottom = 216.0
+text = "State: "
 
 [node name="UnitActions" type="MarginContainer" parent="Camera/UI"]
 margin_left = 884.0
@@ -302,9 +312,12 @@ directional_shadow_mode = 0
 [node name="Allies" type="Spatial" parent="World"]
 
 [node name="Character" parent="World/Allies" instance=ExtResource( 2 )]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 2.3, -4 )
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 2.3, 0 )
 movement = 5
+speed = 5
 jump = 1
+attack_range = 1
+team = 0
 
 [node name="Stats" parent="World/Allies/Character" index="5"]
 char_name = "Sir Player"
@@ -312,6 +325,10 @@ char_name = "Sir Player"
 [node name="Character2" parent="World/Allies" instance=ExtResource( 2 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 2.3, 0 )
 movement = 3
+speed = 5
+jump = 2
+attack_range = 1
+team = 0
 
 [node name="Stats" parent="World/Allies/Character2" index="5"]
 char_name = "Squire Playable"
@@ -320,18 +337,20 @@ char_name = "Squire Playable"
 
 [node name="Character3" parent="World/Enemies" instance=ExtResource( 2 )]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 5.3, -8 )
+movement = 2
+speed = 5
+jump = 2
+attack_range = 1
 team = 1
 
 [node name="CharSprite" parent="World/Enemies/Character3" index="0"]
-modulate = Color( 0.46875, 0.0787354, 0.0878763, 1 )
+texture = ExtResource( 8 )
 
 [node name="Stats" parent="World/Enemies/Character3" index="5"]
 char_name = "Evil Boss"
 job = "Red Knight"
 
 [node name="Tween" type="Tween" parent="World"]
-[connection signal="rotate_world" from="Camera" to="." method="_on_Camera_rotate_world"]
-[connection signal="start_rotate_world" from="Camera" to="." method="_on_Camera_start_rotate_world"]
 
 [editable path="World/Allies/Character"]
 
