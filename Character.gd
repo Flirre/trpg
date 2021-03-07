@@ -28,6 +28,7 @@ var poss_moves = []
 var possible_attacks = []
 var turn_spent setget set_turn_spent
 
+const SPRITE_TRANSLATION_ABOVE_GAME_OBJECT = 2.3
 
 func set_turn_spent(val: bool):
 	endSign.visible = val
@@ -215,7 +216,7 @@ func move_to(path: Array, _delta: float):
 			self,
 			"translation",
 			self.transform.origin,
-			tile + Vector3(0, 2.3, 0),
+			tile + Vector3(0, SPRITE_TRANSLATION_ABOVE_GAME_OBJECT, 0),
 			1,
 			Tween.TRANS_LINEAR,
 			Tween.EASE_IN_OUT
@@ -231,9 +232,6 @@ func _process(_delta):
 		on_active()
 	if not active and not current_tile == null:
 		exit_active()
-
-
-#	print("active: " + str(active)," ", "current_tile: " + str(current_tile), " ", "state: " + str(state))
 
 
 func reset_status() -> void:
