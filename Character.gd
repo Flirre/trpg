@@ -174,20 +174,46 @@ func opposing_teams(character: Character):
 	return team != character.team
 
 func determine_direction(tile: Vector3):
+	var rotation = game.world_rotation
 	var movement_dir = self.transform.origin - tile
-	print(movement_dir)
-	if movement_dir.x > 0: 
-		mirror(true)
-		change_direction(0)
-	if movement_dir.x < 0:
-		change_direction(1)
-		mirror(true)
-	if movement_dir.z < 0:
-		mirror(false)
-		change_direction(0)
-	if movement_dir.z > 0:
-		change_direction(1)
-		mirror(false)
+	match rotation:
+		0:
+			if movement_dir.x > 0: 
+				set_sprite_direction(0, true)
+			if movement_dir.x < 0:
+				set_sprite_direction(1, true)
+			if movement_dir.z < 0:
+				set_sprite_direction(0, false)
+			if movement_dir.z > 0:
+				set_sprite_direction(1, false)
+		1:
+			if movement_dir.x > 0: 
+				set_sprite_direction(0,false)
+			if movement_dir.x < 0:
+				set_sprite_direction(1,false)
+			if movement_dir.z < 0:
+				set_sprite_direction(1, true)
+			if movement_dir.z > 0:
+				set_sprite_direction(0, true)
+		2:
+			if movement_dir.x > 0: 
+				set_sprite_direction(1, true)
+			if movement_dir.x < 0:
+				set_sprite_direction(0, true)
+			if movement_dir.z < 0:
+				set_sprite_direction(1, false)
+			if movement_dir.z > 0:
+				set_sprite_direction(0, false)
+		3:
+			if movement_dir.x > 0: 
+				set_sprite_direction(1, false)
+			if movement_dir.x < 0:
+				set_sprite_direction(0, false)
+			if movement_dir.z < 0:
+				set_sprite_direction(0, true)
+			if movement_dir.z > 0:
+				set_sprite_direction(1, true)
+
 
 func move_to(path: Array, _delta: float):
 	for tile in path:
@@ -255,7 +281,6 @@ func set_direction():
 		change_direction(1)
 		emit_signal("direction_set")
 
-
 func make_transparent():
 	sprite.opacity = 0.5
 
@@ -268,7 +293,6 @@ func show_arrows():
 	var rotation = get_tree().root.get_node("Game/World").rotation
 	arrows.rotation = -rotation
 	arrows.visible = true
-
 
 func hide_arrows():
 	arrows.visible = false
