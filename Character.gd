@@ -152,7 +152,7 @@ func reset_character():
 			tile.available = false
 		for tile in possible_attacks:
 			tile.target = false
-	make_opaque()
+	make_character_sprite_opaque()
 	hide_arrows()
 	current_tile = null
 	state = STATE.CONTROL
@@ -280,7 +280,7 @@ func make_transparent():
 	sprite.opacity = 0.5
 
 
-func make_opaque():
+func make_character_sprite_opaque():
 	sprite.opacity = 1
 
 
