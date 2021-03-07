@@ -45,33 +45,33 @@ signal direction_set
 
 func set_sprite_direction(front, right):
 	sprite.frame = front
-	sprite.flip_h = right
+	sprite.flip_h = bool(right)
 
 
 func rotate_sprite_right():
 	var front = sprite.frame
 	var mirror = sprite.flip_h
 	if front == 0 and not mirror:
-		set_sprite_direction(1, true)
+		set_sprite_direction(1, 1)
 	if front == 1 and mirror:
-		set_sprite_direction(1, false)
+		set_sprite_direction(1, 0)
 	if front == 1 and not mirror:
-		set_sprite_direction(0, true)
+		set_sprite_direction(0, 1)
 	if front == 0 and mirror:
-		set_sprite_direction(0, false)
+		set_sprite_direction(0, 0)
 
 
 func rotate_sprite_left():
 	var front = sprite.frame
 	var mirror = sprite.flip_h
 	if front == 0 and not mirror:
-		set_sprite_direction(0, true)
+		set_sprite_direction(0, 1)
 	if front == 1 and mirror:
-		set_sprite_direction(0, false)
+		set_sprite_direction(0, 0)
 	if front == 1 and not mirror:
-		set_sprite_direction(1, true)
+		set_sprite_direction(1, 1)
 	if front == 0 and mirror:
-		set_sprite_direction(1, false)
+		set_sprite_direction(1, 0)
 
 
 func _ready():
@@ -173,40 +173,40 @@ func determine_direction(tile: Vector3):
 	match rotation:
 		0:
 			if movement_dir.x > 0:
-				set_sprite_direction(0, true)
+				set_sprite_direction(0, 1)
 			if movement_dir.x < 0:
-				set_sprite_direction(1, true)
+				set_sprite_direction(1, 1)
 			if movement_dir.z < 0:
-				set_sprite_direction(0, false)
+				set_sprite_direction(0, 0)
 			if movement_dir.z > 0:
-				set_sprite_direction(1, false)
+				set_sprite_direction(1, 0)
 		1:
 			if movement_dir.x > 0:
-				set_sprite_direction(0, false)
+				set_sprite_direction(0, 0)
 			if movement_dir.x < 0:
-				set_sprite_direction(1, false)
+				set_sprite_direction(1, 0)
 			if movement_dir.z < 0:
-				set_sprite_direction(1, true)
+				set_sprite_direction(1, 1)
 			if movement_dir.z > 0:
-				set_sprite_direction(0, true)
+				set_sprite_direction(0, 1)
 		2:
 			if movement_dir.x > 0:
-				set_sprite_direction(1, true)
+				set_sprite_direction(1, 1)
 			if movement_dir.x < 0:
-				set_sprite_direction(0, true)
+				set_sprite_direction(0, 1)
 			if movement_dir.z < 0:
-				set_sprite_direction(1, false)
+				set_sprite_direction(1, 0)
 			if movement_dir.z > 0:
-				set_sprite_direction(0, false)
+				set_sprite_direction(0, 0)
 		3:
 			if movement_dir.x > 0:
-				set_sprite_direction(1, false)
+				set_sprite_direction(1, 0)
 			if movement_dir.x < 0:
-				set_sprite_direction(0, false)
+				set_sprite_direction(0, 0)
 			if movement_dir.z < 0:
-				set_sprite_direction(0, true)
+				set_sprite_direction(0, 1)
 			if movement_dir.z > 0:
-				set_sprite_direction(1, true)
+				set_sprite_direction(1, 1)
 
 
 func move_to(path: Array, _delta: float):
@@ -263,16 +263,16 @@ func set_direction():
 	make_transparent()
 	show_arrows()
 	if Input.is_action_pressed("ui_up"):
-		set_sprite_direction(1, true)
+		set_sprite_direction(1, 1)
 		emit_signal("direction_set")
 	elif Input.is_action_pressed("ui_down"):
-		set_sprite_direction(0, true)
+		set_sprite_direction(0, 1)
 		emit_signal("direction_set")
 	elif Input.is_action_pressed("ui_right"):
-		set_sprite_direction(0, false)
+		set_sprite_direction(0, 0)
 		emit_signal("direction_set")
 	elif Input.is_action_pressed("ui_left"):
-		set_sprite_direction(1, false)
+		set_sprite_direction(1, 1)
 		emit_signal("direction_set")
 
 
