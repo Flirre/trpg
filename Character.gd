@@ -30,6 +30,7 @@ var turn_spent setget set_turn_spent
 
 const SPRITE_TRANSLATION_ABOVE_GAME_OBJECT = 2.3
 
+
 func set_turn_spent(val: bool):
 	endSign.visible = val
 	turn_spent = val
@@ -262,14 +263,18 @@ func set_direction():
 	show_arrows()
 	if Input.is_action_pressed("ui_up"):
 		set_sprite_direction(1, 1)
+		highlight_arrow($DirectionArrows/Up)
 		emit_signal("direction_set")
 	elif Input.is_action_pressed("ui_down"):
 		set_sprite_direction(0, 1)
+		highlight_arrow($DirectionArrows/Down)
 		emit_signal("direction_set")
 	elif Input.is_action_pressed("ui_right"):
 		set_sprite_direction(0, 0)
+		highlight_arrow($DirectionArrows/Right)
 		emit_signal("direction_set")
 	elif Input.is_action_pressed("ui_left"):
+		highlight_arrow($DirectionArrows/Left)
 		set_sprite_direction(1, 0)
 		emit_signal("direction_set")
 
@@ -293,4 +298,11 @@ func hide_arrows():
 
 
 func highlight_arrow(arrow: Sprite3D):
+	reset_arrows()
 	arrow.opacity = 1
+	arrow.modulate = Color.lightsalmon
+
+
+func reset_arrows():
+	for arrow in arrows.get_children():
+		arrow.modulate = Color.white

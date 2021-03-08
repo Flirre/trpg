@@ -16,11 +16,6 @@ radial_segments = 16
 
 [node name="Character" type="Spatial"]
 script = ExtResource( 2 )
-movement = null
-speed = null
-jump = null
-attack_range = null
-team = null
 
 [node name="CharSprite" type="Sprite3D" parent="."]
 pixel_size = 0.1
@@ -65,15 +60,6 @@ transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0 )
 visible = false
 
 [node name="Up" type="Sprite3D" parent="DirectionArrows"]
-transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0, -0.5 )
-cast_shadow = 0
-pixel_size = 0.06
-billboard = 1
-texture = ExtResource( 3 )
-region_enabled = true
-region_rect = Rect2( 0, 0, 8, 7 )
-
-[node name="Right" type="Sprite3D" parent="DirectionArrows"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0, 0.25 )
 cast_shadow = 0
 flip_h = true
@@ -83,7 +69,7 @@ texture = ExtResource( 3 )
 region_enabled = true
 region_rect = Rect2( 0, 0, 8, 7 )
 
-[node name="Down" type="Sprite3D" parent="DirectionArrows"]
+[node name="Right" type="Sprite3D" parent="DirectionArrows"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0, 0.925 )
 cast_shadow = 0
 pixel_size = 0.06
@@ -92,7 +78,7 @@ texture = ExtResource( 3 )
 region_enabled = true
 region_rect = Rect2( 8, 0, 8, 7 )
 
-[node name="Left" type="Sprite3D" parent="DirectionArrows"]
+[node name="Down" type="Sprite3D" parent="DirectionArrows"]
 transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.925, 0, 0.25 )
 cast_shadow = 0
 flip_h = true
@@ -101,3 +87,12 @@ billboard = 1
 texture = ExtResource( 3 )
 region_enabled = true
 region_rect = Rect2( 8, 0, 8, 7 )
+
+[node name="Left" type="Sprite3D" parent="DirectionArrows"]
+transform = Transform( 1, 0, 0, 0, 1, 0, 0, 0, 1, -0.25, 0, -0.5 )
+cast_shadow = 0
+pixel_size = 0.06
+billboard = 1
+texture = ExtResource( 3 )
+region_enabled = true
+region_rect = Rect2( 0, 0, 8, 7 )
