@@ -122,6 +122,7 @@ ui_rotate_left={
 
 [rendering]
 
+quality/driver/driver_name="GLES2"
 quality/2d/use_nvidia_rect_flicker_workaround=true
 quality/2d/use_pixel_snap=true
 environment/default_environment="res://default_env.tres"
