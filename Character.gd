@@ -218,7 +218,7 @@ func move_to(path: Array, _delta: float):
 			"translation",
 			self.transform.origin,
 			tile + Vector3(0, SPRITE_TRANSLATION_ABOVE_GAME_OBJECT, 0),
-			1,
+			0.62,
 			Tween.TRANS_LINEAR,
 			Tween.EASE_IN_OUT
 		)
@@ -277,6 +277,7 @@ func set_direction():
 		highlight_arrow($DirectionArrows/Left)
 		set_sprite_direction(1, 0)
 		emit_signal("direction_set")
+
 
 
 func make_character_sprite_transparent():
