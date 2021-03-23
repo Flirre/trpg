@@ -143,7 +143,7 @@ func handle_new_game_turn(val: int) -> void:
 func _process(delta):
 	if moving and current_tile:
 		camera.move_to(current_tile.global_transform.origin, delta)
-	if current_tile and is_body_above(current_tile):
+	if current_tile and is_body_above(current_tile) and not state == GAME_STATE.UNIT_ANIMATING:
 		update_portrait()
 	match state:
 		GAME_STATE.MAP_CONTROL:
