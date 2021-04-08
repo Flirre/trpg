@@ -31,9 +31,13 @@ var current_units: int
 var turns_spent: int setget handle_turns_spent
 var game_turns setget handle_new_game_turn
 var world_rotation = 0
+var DEBUG_ENEMY = true
+var DEBUG_STOP = false
 
 signal rotate_world_right
 signal rotate_world_left
+signal unit_done
+signal ai_done
 
 enum GAME_STATE { MAP_CONTROL, UNIT_CONTROL, UNIT_MOVE, UNIT_ATTACK, UNIT_ANIMATING, UNIT_WAIT, PAUSED }
 var state
@@ -139,30 +143,48 @@ func handle_new_game_turn(val: int) -> void:
 	CurrentTurnLabel.text = "Current Turn: " + str(val)
 	game_turns = val
 
-
+func basic_ai():
+	DEBUG_ENEMY = false
+	select_character()
+	set_current_tile(tiles.get_node("45"))
+	yield(get_tree().create_timer(.1), "timeout")
+	move_character()
+	yield(current_character, "move_completed")
+	yield(get_tree().create_timer(.2), "timeout")
+	print("YEEET")
+	print(current_character)
+	character_wait()
+	yield(get_tree().create_timer(.2), "timeout")
+	finish_turn() #IS IT NECESSARY TO BUILD FUNCTIONS SPECIFICALLY FOR AI? BYPASSING SOME GAME STATE? OR MAKE MORE PROPER YIELDING AND WHAT NOT TO CONTROL WHEN TO TRIGGER NEXT FUNCTION IN AI-LOOP
+	
 func _process(delta):
 	if moving and current_tile:
 		camera.move_to(current_tile.global_transform.origin, delta)
 	if current_tile and is_body_above(current_tile) and not state == GAME_STATE.UNIT_ANIMATING:
 		update_portrait()
-	match state:
-		GAME_STATE.MAP_CONTROL:
-			map_control_state(delta)
-		GAME_STATE.UNIT_CONTROL:
-			unit_control_state(delta)
-		GAME_STATE.UNIT_MOVE:
-			unit_move_state(delta)
-		GAME_STATE.UNIT_ATTACK:
-			unit_attack_state(delta)
-		GAME_STATE.UNIT_WAIT:
-			unit_wait_state(delta)
+	if current_team.name == "Enemies" and DEBUG_ENEMY:
+		basic_ai()
+	else:
+		match state:
+			GAME_STATE.MAP_CONTROL:
+				map_control_state(delta)
+			GAME_STATE.UNIT_CONTROL:
+				unit_control_state(delta)
+			GAME_STATE.UNIT_MOVE:
+				unit_move_state()
+			GAME_STATE.UNIT_ATTACK:
+				unit_attack_state(delta)
+			GAME_STATE.UNIT_WAIT:
+				unit_wait_state()
 
+func select_character():
+	if is_body_above(current_tile) and valid_character_choice(current_tile.get_character()):
+		set_current_character(current_tile.get_character())
+		character_move()
 
 func map_control_state(_delta: float):
 	if Input.is_action_just_pressed("ui_accept"):
-		if is_body_above(current_tile) and valid_character_choice(current_tile.get_character()):
-			set_current_character(current_tile.get_character())
-			character_move()
+		select_character()
 	control_tile()
 
 
@@ -221,19 +243,22 @@ func set_current_selection_index(val: int):
 	selectionArrows.get_child(current_selection_index).visible = true
 
 
-func unit_move_state(delta):
+func unit_move_state():
 	if Input.is_action_just_pressed("ui_accept"):
 		if current_tile.available or current_tile == current_character.current_tile:
-			move_character(delta)
+			move_character()
 	control_tile()
 
-func unit_wait_state(_delta: float):
+func unit_wait_state():
 	if current_character:	
 		current_character.set_direction()
 		if Input.is_action_just_pressed("ui_accept"):
-			set_game_state(GAME_STATE.MAP_CONTROL)
-			current_character.active = false
-			current_character = null
+			finish_turn()
+			
+func finish_turn():
+	set_game_state(GAME_STATE.MAP_CONTROL)
+	current_character.active = false
+	current_character = null
 
 func unit_attack_state(_delta):
 	if Input.is_action_just_pressed("ui_accept"):
@@ -261,14 +286,13 @@ func valid_character_choice(character: Character) -> bool:
 	return not character.turn_spent and character.get_parent_spatial() == current_team
 
 
-func move_character(delta: float) -> void:
+func move_character() -> void:
 	if current_tile != current_character.current_tile:
 		set_game_state(GAME_STATE.UNIT_ANIMATING)
 		current_character.move_to(
 			tiles.aStar.get_future_point_path(
 				int(current_character.get_tile().name), int(current_tile.name)
-			),
-			delta
+			)
 		)
 		yield(current_character, "move_completed")
 	set_game_state(GAME_STATE.UNIT_CONTROL)
@@ -333,7 +357,7 @@ func tile_directions(upRay, upNRay, rightRay, rightNRay, downRay, downNRay, left
 		move_to_tile(downNRay, downRay)
 	if Input.is_action_just_pressed("ui_left"):
 		move_to_tile(leftNRay, leftRay)
-
+		
 
 func move_to_tile(directionRay: RayCast, fallbackRay: RayCast) -> void:
 	if directionRay.is_colliding():

@@ -211,7 +211,7 @@ func determine_direction(tile: Vector3):
 				set_sprite_direction(1, 1)
 
 
-func move_to(path: Array, _delta: float):
+func move_to(path: Array):
 	for tile in path:
 		tween.interpolate_property(
 			self,
