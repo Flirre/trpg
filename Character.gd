@@ -90,7 +90,7 @@ func get_tile():
 
 
 func on_active():
-	current_tile = tileRay.get_collider().owner
+	current_tile = get_character_tile()
 	match state:
 		STATE.MOVE:
 			find_possible_movement(movement, jump)
@@ -307,3 +307,7 @@ func highlight_arrow(arrow: Sprite3D):
 func reset_arrows():
 	for arrow in arrows.get_children():
 		arrow.modulate = Color.white
+
+func get_character_tile() -> Tile:
+	return tileRay.get_collider().owner
+
