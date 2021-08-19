@@ -16,3 +16,9 @@ func get_future_point_path(_from_id, _to_id):
 	var point_path = get_point_path(_from_id, _to_id)
 	point_path.remove(0)
 	return point_path
+
+func get_path_closest_to_point(_from_id, _to_id):
+	var point_path = get_point_path(_from_id, _to_id)
+	point_path.remove(0)
+	point_path.remove(point_path.size()-1)
+	return point_path

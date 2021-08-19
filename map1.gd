@@ -1,6 +1,5 @@
 extends Spatial
 
-var tiles
 var aStar: NE_AStar = preload("res://Non-Euclidian-astar.gd").new()
 
 
@@ -13,6 +12,9 @@ func _ready():
 	for point in aStar.get_points():
 		aStar.set_point_disabled(point)
 
+func enable_all_tiles():
+	for tile in get_children():
+		aStar.set_point_disabled(int(tile.name), false)
 
 func disable_tile(tile):
 	aStar.set_point_disabled(int(tile.name))

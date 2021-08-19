@@ -311,3 +311,32 @@ func reset_arrows():
 func get_character_tile() -> Tile:
 	return tileRay.get_collider().owner
 
+func get_enemies():
+	var enemies
+	if self.team == TEAMS.ALLIES:
+		enemies = game.get_node("World").get_node("Enemies").get_children()
+	else:
+		enemies = game.get_node("World").get_node("Allies").get_children()
+	#Check path from player tile to enemy tile using aStar.
+	#go to the tile that is the furthest into the array (of the path to the enemy)
+	return enemies
+
+func find_closest_enemy():
+	var enemies = get_enemies()
+	var astar = game.get_node("World").get_node("Tiles").aStar
+	game.get_node("World").get_node("Tiles").enable_all_tiles()
+	var shortest_path:PoolVector3Array  = [null]
+	var closest_enemy = null
+	for enemy in enemies:
+		var path = astar.get_path_closest_to_point(
+				int(self.get_character_tile().name), int(enemy.get_character_tile().name)
+			)
+		if not shortest_path[0] and not closest_enemy:
+			shortest_path = path
+			closest_enemy = enemy
+		if path.size() < shortest_path.size():
+			shortest_path = path
+			closest_enemy = enemy
+	#Check path from player tile to enemy tile using aStar.
+	#go to the tile that is the furthest into the array (of the path to the enemy)
+	return [shortest_path, closest_enemy]
